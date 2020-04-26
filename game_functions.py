@@ -31,7 +31,7 @@ def check_keyup_events(event, shooter):
     elif event.key == pygame.K_LEFT:
         shooter.moving_left = False
 
-def check_events(ai_settings, screen, stats, play_button, shooter, covids, bullets):
+def check_events(ai_settings, screen, stats, sb, play_button, shooter, covids, bullets):
     """Respond to keypresses and mouse events."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -42,9 +42,9 @@ def check_events(ai_settings, screen, stats, play_button, shooter, covids, bulle
             check_keyup_events(event, shooter)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            check_play_button(ai_settings, screen, stats, play_button, shooter, covids, bullets, mouse_x, mouse_y)
+            check_play_button(ai_settings, screen, stats, sb, play_button, shooter, covids, bullets, mouse_x, mouse_y)
 
-def check_play_button(ai_settings, screen, stats, play_button, shooter, covids, bullets, mouse_x, mouse_y):
+def check_play_button(ai_settings, screen, stats, sb, play_button, shooter, covids, bullets, mouse_x, mouse_y):
     """Start a new game when the player clicks Play."""
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     if button_clicked and not stats.game_active:
@@ -57,6 +57,8 @@ def check_play_button(ai_settings, screen, stats, play_button, shooter, covids, 
         # Reset the game statistics.
         stats.reset_stats()
         stats.game_active = True
+
+        sb.prep_score()
 
         # Empty the list of covids and bullets
         covids.empty()
@@ -82,11 +84,11 @@ def check_bullet_covid_collisions(ai_settings, screen, stats, sb, shooter, covid
     """Respond to bullet-covid collisions."""
     # Remove any bullets and covids that have colided
     collisions = pygame.sprite.groupcollide(bullets, covids, True, True) # for making hi powered bullet change fist bool to false
-    print(collisions)
     if collisions:
         for covids in collisions.values():
             stats.score += ai_settings.covid_points * len(covids)
             sb.prep_score()
+        check_high_score(stats, sb)
 
     if len(covids) == 0:
         # Destroy existing bullets, speed up game, and create new fleet.
@@ -209,4 +211,10 @@ def change_fleet_direction(ai_settings, covids):
     for covid in covids.sprites():
         covid.rect.y += ai_settings.fleet_drop_speed
     ai_settings.fleet_direction *= -1
+
+def check_high_score(stats, sb):
+    """Check  to see if there's a new high score."""
+    if stats.score > stats.high_score:
+        stats.high_score = stats.score
+        sb.prep_high_score()
 
