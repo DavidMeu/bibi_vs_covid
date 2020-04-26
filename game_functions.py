@@ -66,7 +66,7 @@ def check_play_button(ai_settings, screen, stats, play_button, shooter, covids, 
         create_fleet(ai_settings, screen, shooter, covids)
         shooter.center_shooter()
 
-def update_bullets(ai_settings, screen, shooter, covids, bullets):
+def update_bullets(ai_settings, screen, stats, sb, shooter, covids, bullets):
     """Update position of bullets and get rid of ols bullets."""
     # Update bullet positions.
     bullets.update()
@@ -76,12 +76,17 @@ def update_bullets(ai_settings, screen, shooter, covids, bullets):
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
 
-    check_bullet_covid_collisions(ai_settings, screen, shooter, covids, bullets)
+    check_bullet_covid_collisions(ai_settings, screen, stats, sb, shooter, covids, bullets)
 
-def check_bullet_covid_collisions(ai_settings, screen, shooter, covids, bullets):
+def check_bullet_covid_collisions(ai_settings, screen, stats, sb, shooter, covids, bullets):
     """Respond to bullet-covid collisions."""
     # Remove any bullets and covids that have colided
     collisions = pygame.sprite.groupcollide(bullets, covids, True, True) # for making hi powered bullet change fist bool to false
+    print(collisions)
+    if collisions:
+        for covids in collisions.values():
+            stats.score += ai_settings.covid_points * len(covids)
+            sb.prep_score()
 
     if len(covids) == 0:
         # Destroy existing bullets, speed up game, and create new fleet.
