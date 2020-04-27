@@ -1,9 +1,11 @@
 import pygame
+from pygame.sprite import Sprite
 
-class Shooter():
+class Shooter(Sprite):
 
     def __init__(self, ai_settings, screen):
         """Initializing the shooter and set its starting position."""
+        super(Shooter, self).__init__()
         self.screen = screen
         self.ai_settings = ai_settings
 

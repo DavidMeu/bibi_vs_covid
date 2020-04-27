@@ -14,5 +14,6 @@ class GameStats():
 
     def reset_stats(self):
         """Initialize statistics that can change during the game."""
-        self.shooter_left = self.ai_settings.shooter_limit
+        self.shooters_left = self.ai_settings.shooter_limit
         self.score = 0
+        self.level = 1

@@ -58,7 +58,11 @@ def check_play_button(ai_settings, screen, stats, sb, play_button, shooter, covi
         stats.reset_stats()
         stats.game_active = True
 
+        # Reset the scoreboard images.
         sb.prep_score()
+        sb.prep_high_score()
+        sb.prep_level()
+        sb.prep_shooters()
 
         # Empty the list of covids and bullets
         covids.empty()
@@ -91,9 +95,14 @@ def check_bullet_covid_collisions(ai_settings, screen, stats, sb, shooter, covid
         check_high_score(stats, sb)
 
     if len(covids) == 0:
-        # Destroy existing bullets, speed up game, and create new fleet.
+        # If the entire fleet is destroyed, start a new level.
         bullets.empty()
         ai_settings.increase_speed()
+
+        # Increase level.
+        stats.level += 1
+        sb.prep_level()
+
         create_fleet(ai_settings, screen, shooter, covids)
 
 
@@ -152,11 +161,14 @@ def create_fleet(ai_settings, screen, shooter, covids):
         for covid_number in range(number_covids_x):
             create_covid(ai_settings, screen, covids, covid_number, row_number)
 
-def shooter_hit(ai_settings, stats, screen, shooter, covids, bullets):
+def shooter_hit(ai_settings, screen, stats, sb, shooter, covids, bullets):
     """Respond to shooter being hit by covid."""
-    if stats.shooter_left > 0:
+    if stats.shooters_left > 0:
         # Decrement shooter_left.
-        stats.shooter_left -= 1
+        stats.shooters_left -= 1
+
+        # Update scoreboard.
+        sb.prep_shooters()
 
         # Empty the list of covids and bullets.
         covids.empty()
@@ -173,16 +185,16 @@ def shooter_hit(ai_settings, stats, screen, shooter, covids, bullets):
         pygame.mouse.set_visible(True)
 
 
-def check_covids_bottom(ai_settings, stats, screen, shooter, covids, bullets):
+def check_covids_bottom(ai_settings, screen, stats, sb, shooter, covids, bullets):
     """Check if any covids have reached the bottom of the screen."""
     screen_rect = screen.get_rect()
     for covid in covids.sprites():
         if covid.rect.bottom >= screen_rect.bottom:
             # Treat this the same as if the shooter got hit.
-            shooter_hit(ai_settings, stats, screen, shooter, covids, bullets)
+            shooter_hit(ai_settings, screen, stats, sb, shooter, covids, bullets)
             break
 
-def update_covids(ai_settings, stats, screen, shooter, covids, bullets):
+def update_covids(ai_settings, screen, stats, sb, shooter, covids, bullets):
     """Check if the fleet is at an edge,
      and then update the positions of all aliens in the fleet."""
     check_fleet_edges(ai_settings, covids)
@@ -190,14 +202,10 @@ def update_covids(ai_settings, stats, screen, shooter, covids, bullets):
 
     # Look for covid-shooter collisions
     if pygame.sprite.spritecollideany(shooter, covids):
-        shooter_hit(ai_settings, stats, screen, shooter, covids, bullets)
-
-    # Look for covid-shooter collisions.
-    if pygame.sprite.spritecollideany(shooter, covids):
-        print("YOU GOT HIT!")
+        shooter_hit(ai_settings, screen, stats, sb, shooter, covids, bullets)
 
     # Look for covids hitting the bottom of the screen.
-    check_covids_bottom(ai_settings, stats, screen, shooter, covids, bullets)
+    check_covids_bottom(ai_settings, screen, stats, sb, shooter, covids, bullets)
 
 def check_fleet_edges(ai_settings, covids):
     """Respond appropriately if any covids have reached an edge."""

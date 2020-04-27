@@ -45,7 +45,7 @@ def run_game():
         if stats.game_active:
             shooter.update()
             gf.update_bullets(ai_settings, screen, stats, sb, shooter, covids, bullets)
-            gf.update_covids(ai_settings, stats, screen, shooter, covids, bullets)
+            gf.update_covids(ai_settings, screen, stats, sb, shooter, covids, bullets)
 
         gf.update_screen(ai_settings, screen, stats, sb, shooter, covids, bullets, play_button)
 
