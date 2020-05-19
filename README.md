@@ -4,4 +4,4 @@
 #### Movement: left and right
 #### Shooting: space bar
 
-![bibi vs covid](images/bibi_vs_covid.png)
+![bibi vs covid](images/bibi_vs_covid.gif)
